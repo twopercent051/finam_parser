@@ -1,0 +1,29 @@
+Скрипт для переноса данных CSV в Базу данных PostgreSQL
+
+0. Опционально. Создание виртуального окружение и установка зависимостей
+    a) OS Linux:
+        python3 -m venv venv
+        source venv/bic/activate
+        pip install -r requirements.txt
+
+    b) OS Windows
+        python3 -m venv venv
+        venv\Scripts\activate.bat
+        pip install -r requirements.txt
+
+1. Подготовка и создание БД
+    а) Переименовать файл .env.dist в .env
+    b) Указать реквизиты Базы данных
+    c) Запустить ревизию в терминале из корневой директории проекта
+        alembic revision --autogenerate -m 'Init DB'
+    d) Создать таблицы в БД
+        alembic upgrade head
+
+2. Запуск скрипта
+    a) Указать в .env полный путь к файлу csv
+    b) Запустить скрипт из корневой директории проекта
+        python3 main.py
+
+
+Python 3.10.6
+PostgreSQL 14.7
