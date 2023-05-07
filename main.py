@@ -3,7 +3,7 @@ import csv
 import logging
 import os
 from datetime import datetime, date, time
-from sys import platform
+from sys import platform, argv
 import glob
 
 from sqlalchemy.exc import IntegrityError
@@ -109,8 +109,8 @@ class CSVParser:
                 logger.error(f'File: {file} || {import_type} || Неверный формат файла')
             except FileNotFoundError:
                 logger.error(f'File: {file} || {import_type} || Файл не найден')
-            except OSError:
-                logger.error(f'File: {file} || {import_type} || Отсутствует соединение с интернетом')
+            # except OSError:
+            #     logger.error(f'File: {file} || {import_type} || Отсутствует соединение с интернетом')
             except asyncio.exceptions.TimeoutError:
                 logger.error(f'File: {file} || {import_type} || Ошибка подключения к БД')
             except KeyError:
@@ -120,6 +120,6 @@ class CSVParser:
 
 if __name__ == '__main__':
     """ВНИМАНИЕ! Путь прописывается без замыкающего слэша"""
-    import_type = 'finam'
-    csv_path = ''
+    import_type = argv[1]
+    csv_path = argv[2]
     asyncio.run(CSVParser.directory_parser(import_type, csv_path))
