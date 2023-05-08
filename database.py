@@ -1,11 +1,11 @@
 from typing import Optional
 
 from pydantic import BaseModel
-from sqlalchemy import MetaData, inspect, Column, Integer, Date, Time, VARCHAR, DOUBLE_PRECISION, TIMESTAMP, Constraint, \
+from sqlalchemy import MetaData, inspect, Column, Date, Time, VARCHAR, DOUBLE_PRECISION, TIMESTAMP, \
     PrimaryKeyConstraint, UniqueConstraint, insert
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, as_declarative
-from sqlalchemy.sql.functions import now, func
+from sqlalchemy.sql.functions import func
 
 from settings import settings
 

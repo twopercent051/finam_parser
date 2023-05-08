@@ -120,6 +120,9 @@ class CSVParser:
 
 if __name__ == '__main__':
     """ВНИМАНИЕ! Путь прописывается без замыкающего слэша"""
-    import_type = argv[1]
-    csv_path = argv[2]
-    asyncio.run(CSVParser.directory_parser(import_type, csv_path))
+    try:
+        import_type = argv[1]
+        csv_path = argv[2]
+        asyncio.run(CSVParser.directory_parser(import_type, csv_path))
+    except IndexError:
+        logger.error('Недостаточно параметров для запуска')
