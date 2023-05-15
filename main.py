@@ -63,5 +63,5 @@ if __name__ == '__main__':
         asyncio.run(Script.directory_parser(import_type=import_type, path=path, account_id=account_id))
     except IndexError:
         logger.critical('Недостаточно параметров для запуска')
-    except ValueError:
-        logger.error('Неверный тип данных')
+    except ValueError as ex:
+        logger.error(f'Неверный тип данных || {ex}')

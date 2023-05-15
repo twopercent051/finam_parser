@@ -122,6 +122,7 @@ class Parser:
                 update_dict['account_prefix_record'] = soup.find('account').get('name').split('-')[0]
                 cond_dict['account_record'] = soup.find('account').get('id')
                 cond_dict['account_id_record'] = account_id  # Уточнить является ли условием
+
                 await cls.sql_update(
                     update_dict=update_dict,
                     cond_dict=cond_dict,
