@@ -1,91 +1,17 @@
 import asyncio
-import csv
-import logging
 import os
-from datetime import datetime, date, time
 from sys import platform, argv
 import glob
 
-from sqlalchemy.exc import IntegrityError
-
-from database import FinamReportsDAO
-
-logger = logging.getLogger(__name__)
-file_log = logging.FileHandler("logger.log")
-console_out = logging.StreamHandler()
-logging.basicConfig(handlers=(file_log, console_out), level=logging.WARNING,
-                    format="%(asctime)s %(levelname)s %(message)s")
+from parser import Parser
+from settings import logger
 
 
-class CSVParser:
-
-    @staticmethod
-    def import_type_detector(import_type: str) -> dict:
-        """При добавлении импортов заполнить индексами столбцов начиная с нуля"""
-        if import_type == 'finam':
-            data = dict(
-                import_type=import_type,
-                date_index=0,
-                date_time_index=1,
-                type_index=2,
-                comment_index=3,
-                symbol_name_index=4,
-                symbol_index=5,
-                account_index=6,
-                sum_index=7,
-                date_format="%Y-%m-%d",
-                date_time_format="%H:%M:%S"
-                )
-        else:
-            data = dict()
-        return data
-
-    @staticmethod
-    async def file_parser(file: str, data: dict):
-        """Метод парсинга файла и добавления в БД"""
-        with open(file, newline='') as csvfile:
-            reader = csv.reader(csvfile)
-            counter = 1
-            for row in reader:
-                try:
-                    if row[data['date_index']] != '':
-                        date_record = datetime.strptime(row[data['date_index']], data['date_format'])
-                    else:
-                        date_record = date(year=2001, month=1, day=1)
-
-                    if row[data['date_time_index']] != '':
-                        date_time_record = datetime.strptime(row[data['date_time_index']], data['date_time_format'])
-                    else:
-                        date_time_record = time(hour=0, minute=0, second=0)
-
-                    type_record = row[data['type_index']]
-                    comment_record = row[data['comment_index']]
-                    symbol_name_record = row[data['symbol_name_index']]
-                    symbol_record = row[data['symbol_index']]
-                    account_record = row[data['account_index']]
-                    sum_record = float(row[data['sum_index']]) if row[data['sum_index']] != '' else 0
-                    await FinamReportsDAO.add(
-                        date_record=date_record,
-                        date_time_record=date_time_record,
-                        type_record=type_record,
-                        comment_record=comment_record,
-                        symbol_name_record=symbol_name_record,
-                        symbol_record=symbol_record,
-                        account_record=account_record,
-                        sum_record=sum_record
-                    )
-                except IntegrityError:
-                    logger.warning(
-                        f'File: {file} || {data["import_type"]} || Не удалось добавить позицию № {counter}. Строка '
-                        f'уже существует')
-                except ValueError:
-                    logger.warning(
-                        f'File: {file} || {data["import_type"]} || Не удалось добавить позицию № {counter}. Неверный '
-                        f'формат данных')
-                counter += 1
+class Script:
 
     @staticmethod
     def replacer(status: str, file_path: str, directory_path: str):
+        """Метод перемещения файла в категорию"""
         separator = '\\' if platform == 'win32' else '/'
         if not os.path.exists(f'{directory_path}{separator}{status}'):
             os.makedirs(f'{directory_path}{separator}{status}')
@@ -93,22 +19,32 @@ class CSVParser:
         os.replace(file_path, f'{directory_path}{separator}{status}{separator}{file_name}')
 
     @classmethod
-    async def directory_parser(cls, import_type: str, path: str):
-        if platform == 'win32':
-            file_list = glob.glob(f"{path}\\*.csv")
-        else:
-            file_list = glob.glob(f"{path}/*.csv")
+    async def directory_parser(cls, import_type: str, path: str, account_id: int):
+        file_list = []
+        for file_type in ['csv', 'xml', 'xls', 'xlsx']:
+            if platform == 'win32':
+                file_list.extend(glob.glob(f"{path}\\*.{file_type}"))
+            else:
+                file_list.extend(glob.glob(f"{path}/*.{file_type}"))
 
         for file in file_list:
+            file_type = file.split('.')[-1]
             try:
-                data = cls.import_type_detector(import_type)
-                await cls.file_parser(file, data)
+                if file_type == 'csv':
+                    data = Parser.import_type_detector(import_type)
+                    await Parser.csv_parser(file=file, indexes=data, account_id=account_id)
+                elif file_type == 'xml':
+                    await Parser.xml_parser(file=file, import_type=import_type, account_id=account_id)
+                elif file_type == 'xlsx':
+                    await Parser.xlsx_parser(file=file, account_id=account_id, import_type=import_type)
+                else:
+                    await Parser.xls_parser(file=file, account_id=account_id, import_type=import_type)
                 cls.replacer('SUCCESSFUL', file, path)
                 continue
-            except UnicodeDecodeError:
-                logger.error(f'File: {file} || {import_type} || Неверный формат файла')
-            except FileNotFoundError:
-                logger.error(f'File: {file} || {import_type} || Файл не найден')
+            # except UnicodeDecodeError:
+            #     logger.error(f'File: {file} || {import_type} || Неверный формат файла')
+            # except FileNotFoundError:
+            #     logger.error(f'File: {file} || {import_type} || Файл не найден')
             # except OSError:
             #     logger.error(f'File: {file} || {import_type} || Отсутствует соединение с интернетом')
             except asyncio.exceptions.TimeoutError:
@@ -122,7 +58,10 @@ if __name__ == '__main__':
     """ВНИМАНИЕ! Путь прописывается без замыкающего слэша"""
     try:
         import_type = argv[1]
-        csv_path = argv[2]
-        asyncio.run(CSVParser.directory_parser(import_type, csv_path))
+        path = argv[2]
+        account_id = int(argv[3])
+        asyncio.run(Script.directory_parser(import_type=import_type, path=path, account_id=account_id))
     except IndexError:
-        logger.error('Недостаточно параметров для запуска')
+        logger.critical('Недостаточно параметров для запуска')
+    except ValueError:
+        logger.error('Неверный тип данных')

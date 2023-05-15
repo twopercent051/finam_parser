@@ -1,3 +1,5 @@
+import logging
+
 from pydantic import BaseSettings
 
 
@@ -17,3 +19,10 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+logger = logging.getLogger(__name__)
+file_log = logging.FileHandler("logger.log")
+console_out = logging.StreamHandler()
+logging.basicConfig(handlers=(file_log, console_out), level=logging.WARNING,
+                    format="%(asctime)s %(levelname)s %(message)s")

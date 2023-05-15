@@ -7,3 +7,8 @@ pydantic==1.10.7
 python-dotenv==1.0.0
 SQLAlchemy==2.0.12
 typing_extensions==4.5.0
+
+xlrd~=2.0.1
+bs4~=0.0.1
+beautifulsoup4~=4.12.2
+openpyxl~=3.1.2
