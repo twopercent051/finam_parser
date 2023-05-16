@@ -66,8 +66,11 @@ class Parser:
                     data['date_record'] = date(year=2001, month=1, day=1)
 
                 if row[indexes['date_time_index']] != '':
-                    data['date_time_record'] = datetime.strptime(row[indexes['date_time_index']],
-                                                                 indexes['date_time_format']).time()
+                    if len(row[indexes['date_time_index']].split(':')) == 2:
+                        date_time_index = f"{row[indexes['date_time_index']]}:00"
+                    else:
+                        date_time_index = row[indexes['date_time_index']]
+                    data['date_time_record'] = datetime.strptime(date_time_index, indexes['date_time_format']).time()
                 else:
                     data['date_time_record'] = time(hour=0, minute=0, second=0)
 
