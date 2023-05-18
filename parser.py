@@ -96,7 +96,7 @@ class Parser:
     @classmethod
     async def xml_parser(cls, file: str, account_id: int, import_type: str):
         """Метод парсинга XML"""
-        with open(file, 'r') as file:
+        with open(file, 'r', encoding='utf-16') as file:
             xml_file = file.read()
             soup = BeautifulSoup(xml_file, 'lxml')
 
@@ -125,6 +125,8 @@ class Parser:
                 update_dict['account_prefix_record'] = soup.find('account').get('name').split('-')[0]
                 cond_dict['account_record'] = soup.find('account').get('id')
                 cond_dict['account_id_record'] = account_id  # Уточнить является ли условием
+
+                print(operation.get('is'))
 
                 await cls.sql_update(
                     update_dict=update_dict,

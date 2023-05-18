@@ -1,2 +1,9 @@
 2023-05-15 22:45:01,600 ERROR Неверный тип данных
 2023-05-15 22:47:58,484 ERROR Неверный тип данных || time data '118.04.2023' does not match format '%d.%m.%Y'
+2023-05-17 00:17:08,306 ERROR Неверный тип данных || time data '118.04.2023' does not match format '%d.%m.%Y'
+2023-05-18 20:00:26,162 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+2023-05-18 20:35:40,747 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+2023-05-18 20:36:15,055 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+2023-05-18 20:36:54,339 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+2023-05-18 20:38:55,546 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+2023-05-18 20:39:25,284 ERROR Неверный тип данных || 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
